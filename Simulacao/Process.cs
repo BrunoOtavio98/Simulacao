@@ -16,7 +16,6 @@ namespace Simulacao
 
         public int pc_pai { get; set; }
 
-  
         public Process(PictureBox pictureBox, int pc_pai)
         {
             process = pictureBox;
