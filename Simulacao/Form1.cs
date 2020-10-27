@@ -64,31 +64,88 @@ namespace Simulacao
             float next_pc;
 
             // next_pc = gen.rand();
-            next_pc = 0.33f;
+            next_pc = gen.rand();
 
             if (next_pc <= 0.33f)           //se o numero gerado for menor ou igual a 33%
             {
                 //Entao um processo iniciando no computador da esquerda deve ser gerado
-
+               list_of_process.Add( new Process(generate_process(1), 1) );
 
 
             }else if (next_pc > 0.33f && next_pc <= 0.66f)
             {
                 //Caso o numero estiver entre 33% e 66%
                 //Será gerado um processo no computador do meio
-
+                list_of_process.Add(new Process(generate_process(2), 2));
 
             }
             else
             {
                 //Caso contrário será gerado um processo no computador da direita
-
+                list_of_process.Add(new Process(generate_process(3), 3));
 
             }
         }
 
-   
+        private PictureBox generate_process(int pc)
+        {
+            //Os processos quando criados iniciarão nas posições aqui definidas
+            PictureBox process = new PictureBox();
+
+            process.Visible = true;
+            process.Image = Properties.Resources.Process;
+    //        process.Size = new System.Drawing.Size(0, 10);
+            process.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            process.TabIndex = 5;
+            process.TabStop = false;
+
+            if (pc == 1)
+            {   
+                process.Location = new System.Drawing.Point(75, 255);
+            }
+            else if(pc == 2)
+            {
+                process.Location = new System.Drawing.Point(235, 250);
+            }
+            else
+            {
+                process.Location = new System.Drawing.Point(390, 255);
+            }
+            this.Controls.Add(process);
+            return process;
+        }
+
+        private void finish_process(PictureBox process)
+        {
+
+        }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            //timer responsável pela movimentação dos processos
+            int x;
+            int y;
 
 
+
+            foreach (Process item in list_of_process)
+            {
+
+
+                if ((item.process.Location.X >= 75 && item.process.Location.X <= 235) && item.process.Location.Y <= 235 && item.pc_pai == 1)        //canto esquerdo
+                {
+
+                    item.process.Location = new Point(item.process.Location.X + 1, item.process.Location.Y);
+                }
+                else if ((item.process.Location.X >= 235 && item.process.Location.X <= 390) && item.process.Location.Y <= 235 && item.pc_pai == 3)      //canto direito
+                {
+                     item.process.Location = new Point(item.process.Location.X - 1, item.process.Location.Y);
+                }
+                else
+                {
+                    item.process.Location = new Point(item.process.Location.X, item.process.Location.Y - 1);
+                }
+            }
+        }
     }
 }

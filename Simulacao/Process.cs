@@ -3,19 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Simulacao
 {
     class Process
     {
-        public float x { get; set; }
 
-        public float y { get; set; }
+        public PictureBox process { get; set; }
 
-        public Process(float x, float y)
+        public int printer { get; set; }        //0 vai para esquerda, 1 vai para a direita
+
+        public int pc_pai { get; set; }
+
+  
+        public Process(PictureBox pictureBox, int pc_pai)
         {
-            this.x = x;
-            this.y = y;
+            process = pictureBox;
+            this.pc_pai = pc_pai;
         }  
     }
 }

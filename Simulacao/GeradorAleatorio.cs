@@ -29,10 +29,11 @@ namespace Simulacao
         public float rand()
         {
             float to_return;
-            List<int> vetor = new List<int>();
 
+            to_return = 0.0f;
 
-
+            to_return = (float)( (this.seed * this.a + this.c) % this.m) / this.m ;
+           
             this.seed += 1;
             return to_return;
         }
