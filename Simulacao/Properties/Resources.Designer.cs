@@ -63,9 +63,29 @@ namespace Simulacao.Properties {
         /// <summary>
         ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Accept__2_ {
+            get {
+                object obj = ResourceManager.GetObject("Accept (2)", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Computador {
             get {
                 object obj = ResourceManager.GetObject("Computador", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Error__2_ {
+            get {
+                object obj = ResourceManager.GetObject("Error (2)", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

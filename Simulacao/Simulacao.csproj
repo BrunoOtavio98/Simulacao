@@ -94,5 +94,11 @@
   <ItemGroup>
     <None Include="Resources\Process.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Accept %282%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Error %282%29.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
