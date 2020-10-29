@@ -22,7 +22,8 @@ namespace Simulacao
 
         public bool motionDisabled { get; set; }
 
-       
+        public TextBox localId { get; set; }
+
         public Process(PictureBox pictureBox, int pc_pai)
         {
             process = pictureBox;
