@@ -24,6 +24,29 @@ namespace Simulacao
 
         public TextBox localId { get; set; }
 
+
+        //Inserção das estatisticas de cada process
+
+        public int IC { get; set; }
+
+        public int TA { get; set; }
+
+        public int TC { get; set; }
+
+        public int IA { get; set; }
+
+        public int FA { get; set; }
+
+        public int FA1 { get; set; }
+
+        public int FA2 { get; set; }
+
+        public int EF { get; set; }
+
+        public int PS { get; set; }
+
+        public int TO { get; set; }
+
         public Process(PictureBox pictureBox, int pc_pai)
         {
             process = pictureBox;
