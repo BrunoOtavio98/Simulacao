@@ -24,7 +24,7 @@ namespace Simulacao
 
         public TextBox localId { get; set; }
 
-
+        public bool exitPrinter = false;
         //Inserção das estatisticas de cada processo
 
         public int IC { get; set; }

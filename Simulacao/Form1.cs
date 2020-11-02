@@ -59,8 +59,6 @@ namespace Simulacao
          */
         private int lastIC = 0;                 //Para controlar o intervalo de chegada
         
- 
-
         public Form1()
         {
             InitializeComponent();
@@ -81,8 +79,6 @@ namespace Simulacao
             Pen pen = new Pen(Color.Black);
             
             Graphics g = e.Graphics;
-
-
             //Desenhando as linhas verticais
             g.DrawLine(pen, 85, 355, 85, 250);
             g.DrawLine(pen, 250, 385, 250, 300);
@@ -143,7 +139,6 @@ namespace Simulacao
             }
         }
             
-
         /* Timer responsável pela geração dos processos. Quanto menor for seu tempo de interrupção, maior será o numero
          * processos gerados
          */
@@ -153,8 +148,6 @@ namespace Simulacao
             double poisson_compar;
             double gen_poisson = 0.5;//Poisson(genPc);
            
-            genPc += 1;
-
             poisson_compar = gen.rand();                               //numero para comparar com a distribuição de poisson
 
             if (gen_poisson >= poisson_compar)
@@ -226,159 +219,170 @@ namespace Simulacao
 
             foreach (Process item in list_of_process)
             {
-
-                if ((item.process.Location.X >= 75 && item.process.Location.X <= 235) && (item.process.Location.Y >= 210 && item.process.Location.Y <= 235) && item.pc_pai == 1)        //canto esquerdo
+                if (item.removeItem == 0)
                 {
-                    item.process.Location = new Point(item.process.Location.X + 1, item.process.Location.Y);
-                    item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y - 30);
-                }
 
-                else if ((item.process.Location.X >= 235 && item.process.Location.X <= 390) && (item.process.Location.Y >= 210 && item.process.Location.Y <= 235) && item.pc_pai == 3)      //canto direito
-                {
-                    item.process.Location = new Point(item.process.Location.X - 1, item.process.Location.Y);
-                    item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y - 30);
-                }
-
-                else if (item.process.Location.Y <= 200)                                 //chegou na posição do servidor
-                {
-                    if (item.processID == 0)
+                    if ((item.process.Location.X >= 75 && item.process.Location.X <= 235) && (item.process.Location.Y >= 210 && item.process.Location.Y <= 235) && item.pc_pai == 1)        //canto esquerdo
                     {
-                        item.processID = genId;
-                        genId += 1;
-
-                        item.localId.Text = item.processID.ToString();
+                        item.process.Location = new Point(item.process.Location.X + 1, item.process.Location.Y);
+                        item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y - 30);
                     }
 
-                    if (left_printer_busy == false && item.printer == 2 && check_minimum_waiting_process(item) == item.processID)                              //se a impressora da esquerda estiver livre, este processo será atribuido a ela desde que ele não esteja atribuido já
+                    else if ((item.process.Location.X >= 235 && item.process.Location.X <= 390) && (item.process.Location.Y >= 210 && item.process.Location.Y <= 235) && item.pc_pai == 3)      //canto direito
                     {
-                        item.printer = 0;
-                        left_printer_busy = true;                               //e então a impressora será marcada como ocupada
+                        item.process.Location = new Point(item.process.Location.X - 1, item.process.Location.Y);
+                        item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y - 30);
+                    }
 
-                        item.process.Location = new Point(240, 135);
-                        item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y + 30);
-
-                        item.motionDisabled = false;
-                        pictureBox7.Image = Simulacao.Properties.Resources.Error__2_;
-                        waiting_process.Remove(item);
-
-                        if (numberOfProcesswainting > 0)
+                    else if (item.process.Location.Y <= 200)                                 //chegou na posição do servidor
+                    {
+                        if (item.processID == 0)
                         {
-                            numberOfProcesswainting -= 1;
+                            item.processID = genId;
+                            genId += 1;
+
+                            item.localId.Text = item.processID.ToString();
                         }
-                    }
-                    else if (right_printer_busy == false && item.printer == 2 && check_minimum_waiting_process(item) == item.processID)
-                    {
-                        item.printer = 1;
-                        right_printer_busy = true;
-                        pictureBox8.Image = Simulacao.Properties.Resources.Error__2_;
 
-                        item.process.Location = new Point(240, 135);
-                        item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y + 30);
-
-                        item.motionDisabled = false;
-
-                        waiting_process.Remove(item);
-
-                        if (numberOfProcesswainting > 0)
+                        if (left_printer_busy == false && item.printer == 2 && check_minimum_waiting_process(item) == item.processID)                              //se a impressora da esquerda estiver livre, este processo será atribuido a ela desde que ele não esteja atribuido já
                         {
-                            numberOfProcesswainting -= 1;
-                        }
-                    }
-                    else if (left_printer_busy == true && right_printer_busy == true && item.printer == 2 && (!waiting_process.Contains(item) || waiting_process.Count == 0))
-                    {
-                        //se as duas impressoras estiverem sendo usadas, uma fila deve ser formada
-                        item.process.Location = new Point(280 + 40 * numberOfProcesswainting, 200);
-                        item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y + 30);
+                            item.printer = 0;
+                            left_printer_busy = true;                               //e então a impressora será marcada como ocupada
 
-                        item.motionDisabled = true;
-
-                        item.EF = genPc;                //Guardo o instante que esse processo entrou na fila
-
-                        numberOfProcesswainting += 1;
-                        waiting_process.Add(item.DeepCopy());
-                    }
-
-                    if (item.printer == 0)
-                    {                                                              //se a impressora é a da esquerda
-                        if (item.process.Location.X < 75)                          //se chegou na impressora, desabilita o processo
-                        {
-                            arrive_left = true;
-
-                            if (item.EF > 0)                                        //Caso o processo tenha entrado na fila
-                            {
-                                item.EF = genPc - item.EF;                          //Subtraio do instante atual o momento que ele entrou na fila 
-                            }
-
-                            item.IA = genPc;                                        //Momento que o processo chega na impressora é o momento que ele começa a ser atendido
-
-                            item.process.Visible = false;
-                            item.localId.Visible = false;
-                            //   list_of_process.Remove(item);
-                            if (lprinter_time_control >= 4)                              //4 segundos é o tempo de impressão, depois disso ela esta liberada
-                            {
-                                arrive_left = false;
-                                left_printer_busy = false;
-
-                                item.TA = lprinter_time_control;
-                                item.FA = item.TA + item.IA;
-                                item.PS = item.FA - item.TC;
-
-                                lprinter_time_control = 0;
-                                item.removeItem = 1;
-                                pictureBox7.Image = Simulacao.Properties.Resources.Accept__2_;
-                            }
-                        }
-                        else
-                        {
-                            item.process.Location = new Point(item.process.Location.X - 1, item.process.Location.Y);    //movimenta o processo até ele chegar na impressora
+                            item.process.Location = new Point(240, 135);
                             item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y + 30);
-                        }
-                    }
-                    else if (item.printer == 1)
-                    {
-                        if (item.process.Location.X >= 390)                         // se chegou na impressora da direita
-                        {
-                            arrive_right = true;
 
-                            if (item.EF > 0)                                        //Caso o processo tenha entrado na fila
+                            item.motionDisabled = false;
+                            pictureBox7.Image = Simulacao.Properties.Resources.Error__2_;
+                            waiting_process.Remove(item);
+
+                            if (numberOfProcesswainting > 0)
                             {
-                                item.EF = genPc - item.EF;                          //Subtraio do instante atual o momento que ele entrou na fila 
-                            }
-
-                            item.IA = genPc;                                          
-
-                            item.process.Visible = false;                           //desabilita o processo
-                            item.localId.Visible = false;
-
-                            if (rprinter_time_control >= 4)
-                            {
-                                arrive_right = false;
-                                right_printer_busy = false;
-
-                                item.TA = rprinter_time_control;
-                                item.FA = item.TA + item.IA;
-                                item.PS = item.FA - item.TC;
-
-                                rprinter_time_control = 0;
-                                item.removeItem = 1;
-                                pictureBox8.Image = Simulacao.Properties.Resources.Accept__2_;
+                                numberOfProcesswainting -= 1;
                             }
                         }
-                        else
+                        else if (right_printer_busy == false && item.printer == 2 && check_minimum_waiting_process(item) == item.processID)
                         {
-                            item.process.Location = new Point(item.process.Location.X + 1, item.process.Location.Y);         //movimenta o processo até ele chegar na impressora da direita
+                            item.printer = 1;
+                            right_printer_busy = true;
+                            pictureBox8.Image = Simulacao.Properties.Resources.Error__2_;
+
+                            item.process.Location = new Point(240, 135);
                             item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y + 30);
+
+                            item.motionDisabled = false;
+
+                            waiting_process.Remove(item);
+
+                            if (numberOfProcesswainting > 0)
+                            {
+                                numberOfProcesswainting -= 1;
+                            }
+                        }
+                        else if (left_printer_busy == true && right_printer_busy == true && item.printer == 2 && (!waiting_process.Contains(item) || waiting_process.Count == 0))
+                        {
+                            //se as duas impressoras estiverem sendo usadas, uma fila deve ser formada
+                            item.process.Location = new Point(280 + 40 * numberOfProcesswainting, 200);
+                            item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y + 30);
+
+                            item.motionDisabled = true;
+
+                            item.EF = genPc;                //Guardo o instante que esse processo entrou na fila
+
+                            numberOfProcesswainting += 1;
+                            waiting_process.Add(item.DeepCopy());
+                        }
+
+                        if (item.printer == 0)
+                        {                                                              //se a impressora é a da esquerda
+                            if (item.process.Location.X < 75)                          //se chegou na impressora, desabilita o processo
+                            {
+                                arrive_left = true;
+
+                                if (item.IA == 0)
+                                {
+                                    item.IA = genPc;                                        //Momento que o processo chega na impressora é o momento que ele começa a ser atendido
+                                }
+
+                                item.process.Visible = false;
+                                item.localId.Visible = false;
+                                //   list_of_process.Remove(item);
+                                if (lprinter_time_control >= 4)                              //4 segundos é o tempo de impressão, depois disso ela esta liberada
+                                {
+                                    arrive_left = false;
+                                    left_printer_busy = false;
+
+                                    item.TA = lprinter_time_control;
+                                    item.FA = item.TA + item.IA;
+                                    item.PS = item.FA - item.TC;
+
+                                    lprinter_time_control = 0;
+                                    item.removeItem = 1;
+                                    pictureBox7.Image = Simulacao.Properties.Resources.Accept__2_;
+                                }
+                            }
+                            else
+                            {
+                                if (item.EF > 0 && item.exitPrinter == false)                                        //Caso o processo tenha entrado na fila
+                                {
+                                    item.exitPrinter = true;
+                                    item.EF = genPc - item.EF;                          //Subtraio do instante atual o momento que ele entrou na fila 
+                                }
+
+                                item.process.Location = new Point(item.process.Location.X - 1, item.process.Location.Y);    //movimenta o processo até ele chegar na impressora
+                                item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y + 30);
+                            }
+                        }
+                        else if (item.printer == 1)
+                        {
+                            if (item.process.Location.X >= 390)                         // se chegou na impressora da direita
+                            {
+                                arrive_right = true;
+
+                                if (item.IA == 0)
+                                {
+                                    item.IA = genPc;                                        //Momento em que o processo começa a ser atendido na impressora               
+                                }
+
+                                item.process.Visible = false;                           //desabilita o processo
+                                item.localId.Visible = false;
+
+                                if (rprinter_time_control >= 4)
+                                {
+                                    arrive_right = false;
+                                    right_printer_busy = false;
+
+                                    item.TA = rprinter_time_control;
+                                    item.FA = item.TA + item.IA;
+                                    item.PS = item.FA - item.TC;
+
+                                    rprinter_time_control = 0;
+                                    item.removeItem = 1;
+                                    pictureBox8.Image = Simulacao.Properties.Resources.Accept__2_;
+                                }
+                            }
+                            else
+                            {
+                                if (item.EF > 0 && item.exitPrinter == false)                                        //Caso o processo tenha entrado na fila
+                                {
+                                    item.exitPrinter = true;
+                                    item.EF = genPc - item.EF;                          //Subtraio do instante atual o momento que ele entrou na fila 
+                                }
+
+                                item.process.Location = new Point(item.process.Location.X + 1, item.process.Location.Y);         //movimenta o processo até ele chegar na impressora da direita
+                                item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y + 30);
+                            }
                         }
                     }
-                }
 
-                else if (item.motionDisabled == false)
-                {
-                    item.process.Location = new Point(item.process.Location.X, item.process.Location.Y - 1);
-                    item.localId.Location = new Point(item.process.Location.X + 30, item.process.Location.Y);
+                    else if (item.motionDisabled == false)
+                    {
+                        item.process.Location = new Point(item.process.Location.X, item.process.Location.Y - 1);
+                        item.localId.Location = new Point(item.process.Location.X + 30, item.process.Location.Y);
+                    }
                 }
             }
-           // finish_process();
+     //       finish_process();
         }
 
         /*  Controla o tempo de impressão
@@ -386,6 +390,8 @@ namespace Simulacao
          */
         private void timer3_Tick(object sender, EventArgs e)
         {
+
+            genPc += 1;
 
             if (arrive_left == true)
             { 
@@ -450,89 +456,132 @@ namespace Simulacao
          * Timer que interrompe o programa e salva os resultados nos arquivos
          */
         private void timer4_Tick(object sender, EventArgs e)
-        { 
+        {
             timer1.Enabled = false;
             timer2.Enabled = false;
-            timer3.Enabled = false;
-            timer4.Enabled = false;
-            
-            List<string> IC = new List<string>();
-            List<string> TA = new List<string>();
-            List<string> TC = new List<string>();
-            List<string> IA = new List<string>();
-            List<string> FA = new List<string>();
-            List<string> FA1 = new List<string>();
-            List<string> FA2 = new List<string>();
-            List<string> EF = new List<string>();
-            List<string> PS = new List<string>();
-            List<string> TO = new List<string>();
 
-            Process LastProcess = null;
-                       
-            foreach (Process item in list_of_process)
+            if (left_printer_busy == false && right_printer_busy == false)
             {
-                
-                if(item.processID == 1)
-                {
-                    item.FA1 = item.FA;
-                    item.FA2 = item.FA;
 
-                    item.TO = item.IA;
-                    LastProcess = item;
-                }
-                else if(item.processID > 1)
+                timer4.Enabled = false;
+
+                List<string> IC = new List<string>();
+                List<string> TA = new List<string>();
+                List<string> TC = new List<string>();
+                List<string> IA = new List<string>();
+                List<string> FA = new List<string>();
+                List<string> FA1 = new List<string>();
+                List<string> FA2 = new List<string>();
+                List<string> EF = new List<string>();
+                List<string> PS = new List<string>();
+                List<string> TO = new List<string>();
+
+                Process LastProcessR = null;
+                Process LastProcessL = null;
+
+                foreach (Process item in list_of_process)
                 {
-                    if (LastProcess.FA1 <= LastProcess.FA2)
+
+                    if (item.processID == 1 || item.processID == 2)
                     {
                         item.FA1 = item.FA;
-                        item.FA2 = LastProcess.FA1;
-                    }
-                    else
-                    {
-                        item.FA1 = LastProcess.FA1;
                         item.FA2 = item.FA;
+
+                        item.TO = item.IA;
+
+                        if(item.printer == 0)
+                        {
+                            LastProcessL = item.DeepCopy();
+                        }
+                        else
+                        {
+                            LastProcessR = item.DeepCopy();
+                        }
+                    }
+                    else if (item.processID > 2)
+                    {
+
+                        if(item.printer == 0)
+                        {
+                            if (LastProcessL.FA1 <= LastProcessL.FA2)
+                            {
+                                item.FA1 = item.FA;
+                                item.FA2 = LastProcessL.FA1;
+                            }
+                            else
+                            {
+                                item.FA1 = LastProcessL.FA1;
+                                item.FA2 = item.FA;
+                            }
+
+                            if (item.FA == item.FA1)
+                            {
+                                item.TO = item.IA - LastProcessL.FA1;
+                            }
+                            else
+                            {
+                                item.TO = item.IA - LastProcessL.FA2;
+                            }
+
+                            LastProcessL = item.DeepCopy();
+                        }
+                        else
+                        {
+                            if (LastProcessR.FA1 <= LastProcessR.FA2)
+                            {
+                                item.FA1 = item.FA;
+                                item.FA2 = LastProcessR.FA1;
+                            }
+                            else
+                            {
+                                item.FA1 = LastProcessR.FA1;
+                                item.FA2 = item.FA;
+                            }
+
+                            if (item.FA == item.FA1)
+                            {
+                                item.TO = item.IA - LastProcessR.FA1;
+                            }
+                            else
+                            {
+                                item.TO = item.IA - LastProcessR.FA2;
+                            }
+
+                            LastProcessR = item.DeepCopy();
+                        }
                     }
 
-                    if(item.FA == item.FA1)
+                    if (item.processID > 0)                             //Se o programa interrompeu antes de um processo receber seu ID, tal processo será descartado
                     {
-                        item.TO = item.IA - LastProcess.FA1;
+                        IC.Add(item.processID.ToString() + " -> " + item.IC.ToString());
+                        TA.Add(item.processID.ToString() + " -> " + item.TA.ToString());
+                        TC.Add(item.processID.ToString() + " -> " + item.TC.ToString());
+                        IA.Add(item.processID.ToString() + " -> " + item.IA.ToString());
+                        FA.Add(item.processID.ToString() + " -> " + item.FA.ToString());
+                        FA1.Add(item.processID.ToString() + " -> " + item.FA1.ToString());
+                        FA2.Add(item.processID.ToString() + " -> " + item.FA2.ToString());
+                        EF.Add(item.processID.ToString() + " -> " + item.EF.ToString());
+                        PS.Add(item.processID.ToString() + " -> " + item.PS.ToString());
+                        TO.Add(item.processID.ToString() + " -> " + item.TO.ToString());
                     }
-                    else
-                    {
-                        item.TO = item.IA - LastProcess.FA2;
-                    }
-
-                        LastProcess = item.DeepCopy();
                 }
 
-                if (item.processID > 0)                             //Se o programa interrompeu antes de um processo receber seu ID, tal processo será descartado
-                {
-                    IC.Add(item.processID.ToString() + " -> " + item.IC.ToString());
-                    TA.Add(item.processID.ToString() + " -> " + item.TA.ToString());
-                    TC.Add(item.processID.ToString() + " -> " + item.TC.ToString());
-                    IA.Add(item.processID.ToString() + " -> " + item.IA.ToString());
-                    FA.Add(item.processID.ToString() + " -> " + item.FA.ToString());
-                    FA1.Add(item.processID.ToString() + " -> " + item.FA1.ToString());
-                    FA2.Add(item.processID.ToString() + " -> " + item.FA2.ToString());
-                    EF.Add(item.processID.ToString() + " -> " + item.EF.ToString());
-                    PS.Add(item.processID.ToString() + " -> " + item.PS.ToString());
-                    TO.Add(item.processID.ToString() + " -> " + item.TO.ToString());
-                }
+                fm.WriteFile(IC, "IC");
+                fm.WriteFile(TA, "TA");
+                fm.WriteFile(TC, "TC");
+                fm.WriteFile(IA, "IA");
+                fm.WriteFile(FA, "FA");
+                fm.WriteFile(FA1, "FA1");
+                fm.WriteFile(FA2, "FA2");
+                fm.WriteFile(EF, "EF");
+                fm.WriteFile(PS, "PS");
+                fm.WriteFile(TO, "TO");
+
+                MessageBox.Show("Acesse os resultados em: " + AppDomain.CurrentDomain.BaseDirectory + "Dados", "Programa terminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.Close();
             }
-
-            fm.WriteFile(IC, "IC");
-            fm.WriteFile(TA, "TA");
-            fm.WriteFile(TC, "TC");
-            fm.WriteFile(IA, "IA");
-            fm.WriteFile(FA, "FA");
-            fm.WriteFile(FA1, "FA1");
-            fm.WriteFile(FA2, "FA2");
-            fm.WriteFile(EF, "EF");
-            fm.WriteFile(PS, "PS");
-            fm.WriteFile(TO, "TO");
-
-            MessageBox.Show("Acesse os resultados em: " + AppDomain.CurrentDomain.BaseDirectory + "Dados", "Programa terminado",  MessageBoxButtons.OK, MessageBoxIcon.Information);
-            this.Close();
+            else
+                timer2.Enabled = true;
         }
     }
 }

@@ -1,5 +1,8 @@
-Identificação -> Parâmetro
-1 -> 15
-2 -> -3
-3 -> -3
-4 -> 15
+Identificação -> Valor (em segundos)
+1 -> 7
+2 -> 7
+3 -> 2
+4 -> 2
+5 -> 8
+6 -> 13
+7 -> 8

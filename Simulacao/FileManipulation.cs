@@ -27,7 +27,7 @@ namespace Simulacao
                 {
                     using (sw = new StreamWriter(fs, Encoding.Default))
                     {
-                        sw.WriteLine("Identificação -> Parâmetro");
+                        sw.WriteLine("Identificação -> Valor (em segundos)");
                         foreach (string item in data)
                         {
                             sw.WriteLine(item);
