@@ -16,14 +16,14 @@ namespace Simulacao
     {
 
         private GeradorAleatorio gen;
-        private FileManipulation fm;
+        private FileManipulation fm;                       
 
         private List<Process> list_of_process;              //guarda todos os processos gerados pelos computadores
         private List<Process> waiting_process;
 
         private float lambda = 135.0f / 6;                  //Parâmetro da distribuição de Poisson
 
-        private int genId = 0;                              //Ordem que os processs chegam no servidor
+        private int genId = 1;                              //Ordem que os processs chegam no servidor
         private int genPc = 0;                              //Ordem que os processos são gerados nos computadores
 
         /*                 (1)
@@ -378,7 +378,7 @@ namespace Simulacao
                     item.localId.Location = new Point(item.process.Location.X + 30, item.process.Location.Y);
                 }
             }
-            finish_process();
+           // finish_process();
         }
 
         /*  Controla o tempo de impressão
@@ -466,19 +466,58 @@ namespace Simulacao
             List<string> EF = new List<string>();
             List<string> PS = new List<string>();
             List<string> TO = new List<string>();
+
+            Process LastProcess = null;
                        
             foreach (Process item in list_of_process)
             {
-                IC.Add(item.processID.ToString() + " -> " + item.IC.ToString());
-                TA.Add(item.processID.ToString() + " -> " + item.TA.ToString());
-                TC.Add(item.processID.ToString() + " -> " + item.TC.ToString());
-                IA.Add(item.processID.ToString() + " -> " + item.IA.ToString());
-                FA.Add(item.processID.ToString() + " -> " + item.FA.ToString());
-                FA1.Add(item.processID.ToString() + " -> " + item.FA1.ToString());
-                FA2.Add(item.processID.ToString() + " -> " + item.FA2.ToString());
-                EF.Add(item.processID.ToString() + " -> " + item.EF.ToString());
-                PS.Add(item.processID.ToString() + " -> " + item.PS.ToString());
-                TO.Add(item.processID.ToString() + " -> " + item.TO.ToString());
+                
+                if(item.processID == 1)
+                {
+                    item.FA1 = item.FA;
+                    item.FA2 = item.FA;
+
+                    item.TO = item.IA;
+                    LastProcess = item;
+                }
+                else if(item.processID > 1)
+                {
+                    if (LastProcess.FA1 <= LastProcess.FA2)
+                    {
+                        item.FA1 = item.FA;
+                        item.FA2 = LastProcess.FA1;
+                    }
+                    else
+                    {
+                        item.FA1 = LastProcess.FA1;
+                        item.FA2 = item.FA;
+                    }
+
+                    if(item.FA == item.FA1)
+                    {
+                        item.TO = item.IA - LastProcess.FA1;
+                    }
+                    else
+                    {
+                        item.TO = item.IA - LastProcess.FA2;
+                    }
+
+                        LastProcess = item.DeepCopy();
+                }
+
+                if (item.processID > 0)                             //Se o programa interrompeu antes de um processo receber seu ID, tal processo será descartado
+                {
+                    IC.Add(item.processID.ToString() + " -> " + item.IC.ToString());
+                    TA.Add(item.processID.ToString() + " -> " + item.TA.ToString());
+                    TC.Add(item.processID.ToString() + " -> " + item.TC.ToString());
+                    IA.Add(item.processID.ToString() + " -> " + item.IA.ToString());
+                    FA.Add(item.processID.ToString() + " -> " + item.FA.ToString());
+                    FA1.Add(item.processID.ToString() + " -> " + item.FA1.ToString());
+                    FA2.Add(item.processID.ToString() + " -> " + item.FA2.ToString());
+                    EF.Add(item.processID.ToString() + " -> " + item.EF.ToString());
+                    PS.Add(item.processID.ToString() + " -> " + item.PS.ToString());
+                    TO.Add(item.processID.ToString() + " -> " + item.TO.ToString());
+                }
             }
 
             fm.WriteFile(IC, "IC");

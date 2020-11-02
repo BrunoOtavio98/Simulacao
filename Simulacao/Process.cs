@@ -64,7 +64,18 @@ namespace Simulacao
             other.removeItem = this.removeItem;
             other.removeItem = this.removeItem;
             other.motionDisabled = this.motionDisabled;
-         
+
+            other.IC = this.IC;
+            other.TA = this.TA;
+            other.TC = this.TC;
+            other.IA = this.IA;
+            other.FA = this.FA;
+            other.FA1 = this.FA1;
+            other.FA2 = this.FA2;
+            other.EF = this.EF;
+            other.PS = this.PS;
+            other.TO = this.TO;
+
             return other;
         }
                
