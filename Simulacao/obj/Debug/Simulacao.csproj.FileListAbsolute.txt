@@ -1,9 +1,9 @@
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\bin\Debug\Simulacao.exe.config
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\bin\Debug\Simulacao.exe
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\bin\Debug\Simulacao.pdb
-C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.csprojAssemblyReference.cache
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.Form1.resources
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.Properties.Resources.resources
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.csproj.GenerateResource.cache
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.exe
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.pdb
+C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.csprojAssemblyReference.cache

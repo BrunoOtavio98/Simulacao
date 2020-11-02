@@ -12,13 +12,13 @@ namespace Simulacao
 
         public int a { get; set; }
 
-        public int m { get; set; }
+        public double m { get; set; }
 
         public int c { get; set; }
 
-        public int seed { get; set; }
+        public double seed { get; set; }
 
-        public GeradorAleatorio(int a, int m, int c, int seed)
+        public GeradorAleatorio(int a, double m, int c, double seed)
         {
             this.a = a;
             this.m = m;
@@ -26,15 +26,14 @@ namespace Simulacao
             this.seed = seed;
         }
 
-        public float rand()
+        public double rand()
         {
-            float to_return;
+            double to_return;
 
-            to_return = 0.0f;
-
-            to_return = (float)( (this.seed * this.a + this.c) % this.m) / this.m ;
+            this.seed = ((this.seed * this.a + this.c) % this.m);
+            to_return = this.seed / this.m ;
            
-            this.seed += 1;
+            
             return to_return;
         }
     }

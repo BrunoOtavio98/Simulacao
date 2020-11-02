@@ -25,7 +25,7 @@ namespace Simulacao
         public TextBox localId { get; set; }
 
 
-        //Inserção das estatisticas de cada process
+        //Inserção das estatisticas de cada processo
 
         public int IC { get; set; }
 
@@ -67,9 +67,7 @@ namespace Simulacao
          
             return other;
         }
-
-
-
+               
         public override bool Equals(object obj)
         {
             Process p = (Process)obj;

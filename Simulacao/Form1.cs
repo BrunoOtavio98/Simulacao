@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
-
+using System.Numerics;
 
 namespace Simulacao
 {
@@ -16,31 +16,60 @@ namespace Simulacao
     {
 
         private GeradorAleatorio gen;
+        private FileManipulation fm;
 
         private List<Process> list_of_process;              //guarda todos os processos gerados pelos computadores
         private List<Process> waiting_process;
 
-        private float lambda = 135.0f / 6;
+        private float lambda = 135.0f / 6;                  //Parâmetro da distribuição de Poisson
 
         private int genId = 0;                              //Ordem que os processs chegam no servidor
         private int genPc = 0;                              //Ordem que os processos são gerados nos computadores
 
+        /*                 (1)
+         * Para indexar a fila que se formará
+         * 
+         */
         private int numberOfProcesswainting = 0;
 
-        private int lprinter_time_control = 0;
-        private int rprinter_time_control = 0;
-        private bool left_printer_busy = false;
+        /*                 (2)
+         * Para contar (timer 3) os quatro segundos de impressão 
+         *  
+         */
+        private int lprinter_time_control = 0;             
+        private int rprinter_time_control = 0;          
+        
+        /*                  (3)
+         * A partir do momento que o servidor encaminha uma mensagem, a impressora correspodente fica ocupada
+         * as duas variáveis abaixo, controlam a disponibilidade das impressoras
+         */
+        private bool left_printer_busy = false;             
         private bool right_printer_busy = false;
+
+        /*                  (4)
+         *Controla o momento que o processo chega na impressora
+         * Para disparar a contagem de quatro segundos
+         */
+        private bool arrive_left = false;
+        private bool arrive_right = false;
+
+        /*                   (5)
+         *Variáveis para gerar as estatisticas
+         * 
+         */
+        private int lastIC = 0;                 //Para controlar o intervalo de chegada
+        
+ 
 
         public Form1()
         {
             InitializeComponent();
             this.Paint += new PaintEventHandler(f1_paint);
-            gen = new GeradorAleatorio(2921256, 2 ^ 89 - 1, 0, 0);
+            gen = new GeradorAleatorio(2921256, Math.Pow(2, 31) - 1, 0, 1);
 
             list_of_process = new List<Process>();
             waiting_process = new List<Process>();
-
+            fm = new FileManipulation();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -50,7 +79,7 @@ namespace Simulacao
         private void f1_paint(object sender, PaintEventArgs e)
         {
             Pen pen = new Pen(Color.Black);
-            // Get Graphics Object
+            
             Graphics g = e.Graphics;
 
 
@@ -74,7 +103,6 @@ namespace Simulacao
         {
 
         }
-
 
         private PictureBox generate_process(int pc)
         {
@@ -114,83 +142,85 @@ namespace Simulacao
                 }
             }
         }
+            
 
+        /* Timer responsável pela geração dos processos. Quanto menor for seu tempo de interrupção, maior será o numero
+         * processos gerados
+         */
         private void timer1_Tick(object sender, EventArgs e)
-        {
-
-            float next_pc = 0.0f;
-            float poisson_compar = 0.0f;
-
-            float gen_poisson = Poisson(genPc);
+        { 
+            double next_pc;
+            double poisson_compar;
+            double gen_poisson = 0.5;//Poisson(genPc);
+           
             genPc += 1;
 
-            Process p;
-
-            TextBox text = new TextBox();
-
             poisson_compar = gen.rand();                               //numero para comparar com a distribuição de poisson
-
 
             if (gen_poisson >= poisson_compar)
             {
                 next_pc = gen.rand();
 
-                if (next_pc <= 0.33f)           //se o numero gerado for menor ou igual a 33%
+
+                if (next_pc <= 0.33)           //se o numero gerado for menor ou igual a 33%
                 {
                     //Entao um processo iniciando no computador da esquerda deve ser gerado
-                    p = new Process(generate_process(1), 1);
-                    p.printer = 2;                                                       //no inicio o processo não tem alguma impressora atribuida
-
-                    this.Controls.Add(text);
-                    p.localId = text;
-                    p.localId.Location = new Point(p.process.Location.X + 10, p.process.Location.Y);
-                    p.localId.Enabled = true;
-                    p.localId.ReadOnly = true;
-                    p.localId.Size = new Size(25, 15);
-                    p.localId.Visible = true;
-
-
-                    list_of_process.Add(p);
+                    list_of_process.Add(assignProcess(1));
                 }
-                else if (next_pc > 0.33f && next_pc <= 0.66f)
+                else if (next_pc > 0.33 && next_pc <= 0.66)
                 {
                     //Caso o numero estiver entre 33% e 66%
                     //Será gerado um processo no computador do meio
-                    p = new Process(generate_process(2), 2);
-                    p.printer = 2;                                                   //no inicio o processo não tem alguma impressora atribuida
-
-                    this.Controls.Add(text);
-                    p.localId = text;
-                    p.localId.Location = new Point(p.process.Location.X + 10, p.process.Location.Y);
-                    p.localId.Enabled = true;
-                    p.localId.ReadOnly = true;
-                    p.localId.Size = new Size(25, 15);
-                    p.localId.Visible = true;
-
-                    list_of_process.Add(p);
+                   
+                    list_of_process.Add(assignProcess(2));
                 }
                 else
                 {
                     //Caso contrário será gerado um processo no computador da direita
-                    p = new Process(generate_process(3), 3);
-                    p.printer = 2;                                                //no inicio o processo não tem alguma impressora atribuida
-
-                    this.Controls.Add(text);
-                    p.localId = text;
-                    p.localId.Location = new Point(p.process.Location.X + 20, p.process.Location.Y);
-                    p.localId.Enabled = true;
-                    p.localId.ReadOnly = true;
-                    p.localId.Size = new Size(25, 15);
-                    p.localId.Visible = true;
-
-                    list_of_process.Add(p);
+                    list_of_process.Add(assignProcess(3));
                 }
             }
         }
 
+        private Process assignProcess(int father)
+        {
+
+            Process p;
+            TextBox text = new TextBox();
+
+            p = new Process(generate_process(father), father);
+            p.printer = 2;                                                //no inicio o processo não tem alguma impressora atribuida
+
+            this.Controls.Add(text);
+            p.localId = text;
+            p.localId.Location = new Point(p.process.Location.X + 10, p.process.Location.Y);
+            p.localId.Enabled = true;
+            p.localId.ReadOnly = true;
+            p.localId.Size = new Size(25, 15);
+            p.localId.Visible = true;
+
+            if (lastIC == 0)
+            {
+                p.IC = genPc;
+                lastIC = genPc;
+            }
+            else
+            {
+                p.IC = genPc - lastIC;
+                lastIC = genPc;
+            }
+
+            p.TC = genPc;
+
+            return p;
+        }
+
+        /*
+         * Timer responsável pela movimentação dos processos
+         */
         private void timer2_Tick(object sender, EventArgs e)
         {
-            //timer responsável pela movimentação dos processos
+            
             int x;
             int y;
 
@@ -247,7 +277,6 @@ namespace Simulacao
 
                         item.motionDisabled = false;
 
-
                         waiting_process.Remove(item);
 
                         if (numberOfProcesswainting > 0)
@@ -262,22 +291,38 @@ namespace Simulacao
                         item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y + 30);
 
                         item.motionDisabled = true;
+
+                        item.EF = genPc;                //Guardo o instante que esse processo entrou na fila
+
                         numberOfProcesswainting += 1;
                         waiting_process.Add(item.DeepCopy());
                     }
 
                     if (item.printer == 0)
                     {                                                              //se a impressora é a da esquerda
-
-                        if (item.process.Location.X < 75)                               //se chegou na impressora, desabilita o processo
+                        if (item.process.Location.X < 75)                          //se chegou na impressora, desabilita o processo
                         {
+                            arrive_left = true;
+
+                            if (item.EF > 0)                                        //Caso o processo tenha entrado na fila
+                            {
+                                item.EF = genPc - item.EF;                          //Subtraio do instante atual o momento que ele entrou na fila 
+                            }
+
+                            item.IA = genPc;                                        //Momento que o processo chega na impressora é o momento que ele começa a ser atendido
 
                             item.process.Visible = false;
                             item.localId.Visible = false;
                             //   list_of_process.Remove(item);
                             if (lprinter_time_control >= 4)                              //4 segundos é o tempo de impressão, depois disso ela esta liberada
                             {
+                                arrive_left = false;
                                 left_printer_busy = false;
+
+                                item.TA = lprinter_time_control;
+                                item.FA = item.TA + item.IA;
+                                item.PS = item.FA - item.TC;
+
                                 lprinter_time_control = 0;
                                 item.removeItem = 1;
                                 pictureBox7.Image = Simulacao.Properties.Resources.Accept__2_;
@@ -287,20 +332,33 @@ namespace Simulacao
                         {
                             item.process.Location = new Point(item.process.Location.X - 1, item.process.Location.Y);    //movimenta o processo até ele chegar na impressora
                             item.localId.Location = new Point(item.process.Location.X, item.process.Location.Y + 30);
-
                         }
-
                     }
                     else if (item.printer == 1)
                     {
                         if (item.process.Location.X >= 390)                         // se chegou na impressora da direita
                         {
+                            arrive_right = true;
+
+                            if (item.EF > 0)                                        //Caso o processo tenha entrado na fila
+                            {
+                                item.EF = genPc - item.EF;                          //Subtraio do instante atual o momento que ele entrou na fila 
+                            }
+
+                            item.IA = genPc;                                          
+
                             item.process.Visible = false;                           //desabilita o processo
                             item.localId.Visible = false;
 
                             if (rprinter_time_control >= 4)
                             {
+                                arrive_right = false;
                                 right_printer_busy = false;
+
+                                item.TA = rprinter_time_control;
+                                item.FA = item.TA + item.IA;
+                                item.PS = item.FA - item.TC;
+
                                 rprinter_time_control = 0;
                                 item.removeItem = 1;
                                 pictureBox8.Image = Simulacao.Properties.Resources.Accept__2_;
@@ -319,70 +377,123 @@ namespace Simulacao
                     item.process.Location = new Point(item.process.Location.X, item.process.Location.Y - 1);
                     item.localId.Location = new Point(item.process.Location.X + 30, item.process.Location.Y);
                 }
-
             }
-
             finish_process();
         }
 
-        private int check_minimum_waiting_process(Process p)
-        {
-
-            //verifica qual processo de menor id que está na fila, esse será escolhido.
-
-            int exclude;
-
-            foreach (Process item in waiting_process)
-            {
-
-                if (item.processID < p.processID)        //se há um processo na fila de processos que estão esperando com id menor que aquele avaliado
-                {
-                    exclude = item.processID;
-                    return exclude;
-                }
-            }
-
-            return p.processID;                                   //caso não haja, este processo mesmo será impresso
-
-        }
-
+        /*  Controla o tempo de impressão
+         *  
+         */
         private void timer3_Tick(object sender, EventArgs e)
         {
-            //controla o tempo de impressão
 
-            if (left_printer_busy == true)
-            {
+            if (arrive_left == true)
+            { 
                 lprinter_time_control += 1;
             }
-            if (right_printer_busy == true)
+            if (arrive_right == true)
             {
                 rprinter_time_control += 1;
             }
-
         }
 
-        private int Factorial(int number)
+        /* Verifica qual processo de menor id que está na fila, esse será escolhido
+         * 
+         */
+        private int check_minimum_waiting_process(Process p)
+        {
+            
+            int minimum_process;
+
+            foreach (Process item in waiting_process)
+            {
+                if (item.processID < p.processID)        //se há um processo na fila de processos que estão esperando com id menor que aquele avaliado
+                {
+                    minimum_process = item.processID;
+                    return minimum_process;
+                }
+            }
+            return p.processID;                                   //caso não haja, este processo mesmo será impresso
+        }
+
+        private double Factorial(int number)
         {
 
-            int to_return = 1;
-
+            double to_return = 1;
+            
             for (int i = number; i > 0; i--)
                 to_return *= i;
 
             return to_return;
         }
 
-        private float Poisson(int k)
+        private double Poisson(int k)
         {
-            float numerador;
-            float denumerador;
+            double numerador;
+            double denumerador;
 
-            numerador = (float)Math.Pow(Math.Exp(1), -lambda) * (float)Math.Pow(lambda, k);
-            denumerador = Factorial(k);
+            /* De acordo com a distribuição feita previamente em MATLAB, se k > 40, a probabilidade estará muito            
+             * próximo de 0 (0.0002535) então para ganhar tempo, retornamos 0, pois é estatisticamente improvavel que um
+             * processo com essa probabilidade seja gerado.
+             */
+            if (k < 40) {                         
+                numerador = Math.Pow(Math.Exp(1), -lambda) * Math.Pow(lambda, k);
+                denumerador = Factorial(k);
 
-            return (numerador / denumerador);
-
+                return (numerador / denumerador);
+            }
+            else
+                return 0;
         }
 
+        /*
+         * Timer que interrompe o programa e salva os resultados nos arquivos
+         */
+        private void timer4_Tick(object sender, EventArgs e)
+        { 
+            timer1.Enabled = false;
+            timer2.Enabled = false;
+            timer3.Enabled = false;
+            timer4.Enabled = false;
+            
+            List<string> IC = new List<string>();
+            List<string> TA = new List<string>();
+            List<string> TC = new List<string>();
+            List<string> IA = new List<string>();
+            List<string> FA = new List<string>();
+            List<string> FA1 = new List<string>();
+            List<string> FA2 = new List<string>();
+            List<string> EF = new List<string>();
+            List<string> PS = new List<string>();
+            List<string> TO = new List<string>();
+                       
+            foreach (Process item in list_of_process)
+            {
+                IC.Add(item.processID.ToString() + " -> " + item.IC.ToString());
+                TA.Add(item.processID.ToString() + " -> " + item.TA.ToString());
+                TC.Add(item.processID.ToString() + " -> " + item.TC.ToString());
+                IA.Add(item.processID.ToString() + " -> " + item.IA.ToString());
+                FA.Add(item.processID.ToString() + " -> " + item.FA.ToString());
+                FA1.Add(item.processID.ToString() + " -> " + item.FA1.ToString());
+                FA2.Add(item.processID.ToString() + " -> " + item.FA2.ToString());
+                EF.Add(item.processID.ToString() + " -> " + item.EF.ToString());
+                PS.Add(item.processID.ToString() + " -> " + item.PS.ToString());
+                TO.Add(item.processID.ToString() + " -> " + item.TO.ToString());
+            }
+
+            fm.WriteFile(IC, "IC");
+            fm.WriteFile(TA, "TA");
+            fm.WriteFile(TC, "TC");
+            fm.WriteFile(IA, "IA");
+            fm.WriteFile(FA, "FA");
+            fm.WriteFile(FA1, "FA1");
+            fm.WriteFile(FA2, "FA2");
+            fm.WriteFile(EF, "EF");
+            fm.WriteFile(PS, "PS");
+            fm.WriteFile(TO, "TO");
+
+            MessageBox.Show("Acesse os resultados em: " + AppDomain.CurrentDomain.BaseDirectory + "Dados", "Programa terminado",  MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.Close();
+        }
     }
 }
