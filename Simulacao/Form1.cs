@@ -21,7 +21,7 @@ namespace Simulacao
         private List<Process> list_of_process;              //guarda todos os processos gerados pelos computadores
         private List<Process> waiting_process;
 
-        private double lambda = 1.0/23;                  //Parâmetro da distribuição de Poisson
+        private double lambda = 1.0/12;                  //Parâmetro da distribuição de Poisson
 
         private int genId = 1;                              //Ordem que os processs chegam no servidor
         private int genPc = 0;                              //Ordem que os processos são gerados nos computadores
@@ -68,6 +68,7 @@ namespace Simulacao
             list_of_process = new List<Process>();
             waiting_process = new List<Process>();
             fm = new FileManipulation();
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -582,6 +583,21 @@ namespace Simulacao
             }
             else
                 timer2.Enabled = true;
+        }
+
+        private void accept_Click(object sender, EventArgs e)
+        {
+
+            if(textBox1.TextLength > 0)
+            {
+                timer4.Interval = int.Parse(textBox1.Text)*1000;
+                textBox1.Text = "\0";
+                timer1.Enabled = true;
+                timer3.Enabled = true;
+                timer4.Enabled = true;
+                timer2.Enabled = true;
+                
+            }
         }
     }
 }

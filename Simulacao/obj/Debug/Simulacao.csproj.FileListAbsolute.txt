@@ -6,4 +6,3 @@ C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.Prop
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.csproj.GenerateResource.cache
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.exe
 C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.pdb
-C:\Users\Bruno Otávio\source\repos\Simulacao\Simulacao\obj\Debug\Simulacao.csprojAssemblyReference.cache
