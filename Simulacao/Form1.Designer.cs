@@ -152,7 +152,7 @@
             // timer4
             // 
             this.timer4.Enabled = true;
-            this.timer4.Interval = 20000;
+            this.timer4.Interval = 30000;
             this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
             // 
             // Form1

@@ -23,7 +23,7 @@ namespace Simulacao
             try
             {
 
-                using (fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write))
+                using (fs = new FileStream(path, FileMode.Create, FileAccess.Write))
                 {
                     using (sw = new StreamWriter(fs, Encoding.Default))
                     {

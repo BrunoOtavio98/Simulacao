@@ -21,7 +21,7 @@ namespace Simulacao
         private List<Process> list_of_process;              //guarda todos os processos gerados pelos computadores
         private List<Process> waiting_process;
 
-        private float lambda = 135.0f / 6;                  //Parâmetro da distribuição de Poisson
+        private double lambda = 1.0/23;                  //Parâmetro da distribuição de Poisson
 
         private int genId = 1;                              //Ordem que os processs chegam no servidor
         private int genPc = 0;                              //Ordem que os processos são gerados nos computadores
@@ -146,7 +146,7 @@ namespace Simulacao
         { 
             double next_pc;
             double poisson_compar;
-            double gen_poisson = 0.5;//Poisson(genPc);
+            double gen_poisson = Poisson(genPc/123.0);
            
             poisson_compar = gen.rand();                               //numero para comparar com a distribuição de poisson
 
@@ -204,7 +204,6 @@ namespace Simulacao
             }
 
             p.TC = genPc;
-
             return p;
         }
 
@@ -433,7 +432,7 @@ namespace Simulacao
             return to_return;
         }
 
-        private double Poisson(int k)
+        private double Poisson(double k)
         {
             double numerador;
             double denumerador;
@@ -442,9 +441,9 @@ namespace Simulacao
              * próximo de 0 (0.0002535) então para ganhar tempo, retornamos 0, pois é estatisticamente improvavel que um
              * processo com essa probabilidade seja gerado.
              */
-            if (k < 40) {                         
+            if ((int)k < 40) {                         
                 numerador = Math.Pow(Math.Exp(1), -lambda) * Math.Pow(lambda, k);
-                denumerador = Factorial(k);
+                denumerador = Factorial((int)k);
 
                 return (numerador / denumerador);
             }
@@ -479,6 +478,7 @@ namespace Simulacao
                 Process LastProcessR = null;
                 Process LastProcessL = null;
 
+              
                 foreach (Process item in list_of_process)
                 {
 
@@ -565,7 +565,7 @@ namespace Simulacao
                         TO.Add(item.processID.ToString() + " -> " + item.TO.ToString());
                     }
                 }
-
+               
                 fm.WriteFile(IC, "IC");
                 fm.WriteFile(TA, "TA");
                 fm.WriteFile(TC, "TC");
